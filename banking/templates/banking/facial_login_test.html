@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Authentication</title>
+</head>
+<body>
+    <h1>Facial Authentication</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="image">Upload an Image:</label><br>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>
+        <button type="submit">Authenticate</button>
+    </form>
+
+    {% if form.non_field_errors %}
+    <div style="color: red;">
+        <p><strong>Errors:</strong></p>
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+
+    {% if message %}
+        <div style="color: green;">
+            <p>{{ message }}</p>
+        </div>
+    {% endif %}
+</body>
+</html>

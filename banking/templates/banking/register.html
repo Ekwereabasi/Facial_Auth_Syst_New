@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+    .form-group input[type="submit"] {
+    background: #007bff;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    margin: 20px auto 0; /* Horizontally centers the button */
+    display: block; /* Ensures it behaves as a block element */
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s ease;
+    width: 40%;
+}
+
+        .form-group input[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Camera Section Styling */
+        #camera-container {
+            position: relative;
+            width: 100%;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 2px dashed #007bff;
+            padding-top: 75%;
+        }
+
+        #camera {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #capture-button {
+            margin: 20px auto 0;
+            display: block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #capture-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #profile-picture-preview {
+            display: none;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Register</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.phone_number.label_tag }}
+                {{ form.phone_number }}
+            </div>
+            <div class="form-group">
+                {{ form.profile_picture.label_tag }}
+                {{ form.profile_picture }}
+            </div>
+            <div class="form-group">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+            </div>
+            <div class="form-group">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+            </div>
+
+            <!-- Camera Section -->
+            <div id="camera-container">
+                <video id="camera" autoplay></video>
+            </div>
+            <button type="button" id="capture-button">Capture Profile Picture</button>
+            <img id="profile-picture-preview" src="" alt="Profile Picture Preview">
+
+            <div class="form-group">
+                <input type="submit" value="Register">
+            </div>
+        </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const camera = document.getElementById('camera');
+                const captureButton = document.getElementById('capture-button');
+                const canvas = document.createElement('canvas');
+                const profilePicturePreview = document.getElementById('profile-picture-preview');
+                const context = canvas.getContext('2d');
+                const fileInput = document.querySelector('input[name="profile_picture"]');
+
+                // Access the user's camera
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        camera.srcObject = stream;
+                    })
+                    .catch(error => {
+                        console.error('Error accessing the camera: ', error);
+                    });
+
+                // Capture image and preview
+                captureButton.addEventListener('click', function () {
+                    canvas.width = camera.videoWidth;
+                    canvas.height = camera.videoHeight;
+                    context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg');
+                    profilePicturePreview.src = dataUrl;
+                    profilePicturePreview.style.display = 'block';
+
+                    // Convert the captured image to a file and set it to the hidden input
+                    fetch(dataUrl)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            fileInput.files = dataTransfer.files;
+                        });
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

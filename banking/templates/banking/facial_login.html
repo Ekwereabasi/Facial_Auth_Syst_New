@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Login</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        .container {
+            background: #ffffff;
+            color: #333;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 3px dashed #007bff;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .error {
+            color: #d9534f;
+        }
+
+        .success {
+            color: #5cb85c;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Facial Login</h1>
+
+        <!-- Live Camera Container -->
+        <div class="camera-container">
+            <video id="video" autoplay></video>
+        </div>
+        <button id="captureButton">Capture Photo</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <!-- Messages -->
+        <div id="message" class="message">
+            {% if form.non_field_errors %}
+            <div class="error">
+                <strong>Errors:</strong>
+                <ul>
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if message %}
+            <div class="success">
+                <p>{{ message }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Register Link -->
+        <div class="register-link">
+            Don't have an account? <a href="{% url 'register' %}">Register here</a>
+        </div>
+    </div>
+
+    <script>
+        // Access the camera
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('captureButton');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error("Error accessing the camera: " + err);
+                document.getElementById('message').innerHTML = `
+                    <div class="error">Error accessing the camera. Please enable camera permissions.</div>`;
+            });
+
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Simulate submission
+            alert("Photo captured! Now ready for authentication.");
+        });
+    </script>
+</body>
+
+</html>
